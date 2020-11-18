@@ -14,6 +14,8 @@ const router = express.Router();
 const { generateAccessToken } = require("../../config/jwtToken");
 const Nexmo = require("nexmo");
 const { response } = require("express");
+const otp = require("../../config/opt");
+const mail = require("../../config/mail");
 
 // Otp
 
@@ -213,7 +215,6 @@ router.post("/login", async function (req, res) {
         .json({ success: false, message: "User Does not Found" });
     }
     if (user) {
-      console.log(user);
       token = generateAccessToken(
         email
           ? {
@@ -300,7 +301,6 @@ router.post("/signUp", function (req, res) {
         }
         if (!user) console.log(user);
         const newUser = new User({
-          userName: req.body.userName,
           userName: req.body.userName || "",
           registrationType: req.body.registrationType || "",
           picture: req.body.picture ? req.body.picture : "",
@@ -356,6 +356,7 @@ router.post("/signUp", function (req, res) {
                 success: true,
                 token,
                 user,
+                otp: phone ? otp(Number(phone)) : mail(email),
                 message: "User Registered Successfully.",
               });
             });
