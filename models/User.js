@@ -48,6 +48,15 @@ const UserSchema = new Schema({
   type: {
     type: String,
   },
+  day: {
+    type: String,
+  },
+  month: {
+    type: String,
+  },
+  year: {
+    type: String,
+  },
   subType: {
     type: String,
   },
