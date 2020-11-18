@@ -28,7 +28,7 @@ router.post("/otp", async function (req, res) {
   console.log(otp);
   const from = "Vonage APIs";
   // const to = "923172874198";
-  const text = `UGGLAN, Hello, How are you. your otp code is ${otp}`;
+  const text = `SHAKA, Hello, How are you. your otp code is ${otp}`;
 
   // nexmo.message.sendSms(from, to, text);
   res.status(200).json({
@@ -204,9 +204,9 @@ router.get("/getUserByQuery", authenticateAdminToken, async (req, res) => {
 });
 
 router.post("/login", async function (req, res) {
-  let { email, password } = req.body;
+  let { email, phone, password } = req.body;
   let token;
-  User.findOne({ email }).then((user) => {
+  User.findOne(email ? { email } : { phone }).then((user) => {
     if (!user) {
       return res
         .status(202)
@@ -214,13 +214,23 @@ router.post("/login", async function (req, res) {
     }
     if (user) {
       console.log(user);
-      token = generateAccessToken({
-        email: user.email,
-        password: user.password,
-        _id: user._id,
-        type: user.type,
-        subType: user.subType,
-      });
+      token = generateAccessToken(
+        email
+          ? {
+              email: user.email,
+              password: user.password,
+              _id: user._id,
+              type: user.type,
+              subType: user.subType,
+            }
+          : {
+              phone: user.phone,
+              password: user.password,
+              _id: user._id,
+              type: user.type,
+              subType: user.subType,
+            }
+      );
       bcrypt.compare(password, user.password).then((isMatch) => {
         // If the password matches isMatch will be true.
 
@@ -232,13 +242,9 @@ router.post("/login", async function (req, res) {
           userField.lastLoginDateAndTime = Math.round(
             new Date().getTime() / 1000
           );
-
+          let go = email ? { email } : { phone };
           // Save the last login data and time for this user.
-          User.findOneAndUpdate(
-            { email: user.email },
-            { $set: userField },
-            { new: true }
-          )
+          User.findOneAndUpdate(go, { $set: userField }, { new: true })
             .then((user) => {
               return res.status(200).json({ success: true, token, user });
             })
@@ -276,7 +282,7 @@ router.put("/", authenticateToken, async function (req, res) {
 
 router.post("/signUp", function (req, res) {
   let { email, googleUserId, phone, type } = req.body;
-  console.log(email);
+
   User.findOne({ email }).then((user) => {
     console.log(user);
     if (user) {
@@ -295,16 +301,14 @@ router.post("/signUp", function (req, res) {
         if (!user) console.log(user);
         const newUser = new User({
           userName: req.body.userName,
-          firstName: req.body.firstName || "",
-          lastName: req.body.lastName || "",
+          userName: req.body.userName || "",
           registrationType: req.body.registrationType || "",
           picture: req.body.picture ? req.body.picture : "",
           facebookUserId: req.body.facebookUserId
             ? req.body.facebookUserId
             : "",
           googleUserId: req.body.googleUserId ? req.body.googleUserId : "",
-          phone: req.body.phone ? req.body.phone : "",
-          email: req.body.email,
+          email: req.body.email ? req.body.email : "",
           country: req.body.country || "",
           phone: req.body.phone || "",
           password: req.body.password,
@@ -331,13 +335,23 @@ router.post("/signUp", function (req, res) {
 
             // Then save user in the database using newUser.save() and then send the user as response on success and error on failure.
             newUser.save().then((user) => {
-              let token = generateAccessToken({
-                email: user.email,
-                password: user.password,
-                _id: user._id,
-                type: user.type,
-                subType: user.subType,
-              });
+              let token = generateAccessToken(
+                email
+                  ? {
+                      email: user.email,
+                      password: user.password,
+                      _id: user._id,
+                      type: user.type,
+                      subType: user.subType,
+                    }
+                  : {
+                      phone: user.phone,
+                      password: user.password,
+                      _id: user._id,
+                      type: user.type,
+                      subType: user.subType,
+                    }
+              );
               return res.status(200).json({
                 success: true,
                 token,

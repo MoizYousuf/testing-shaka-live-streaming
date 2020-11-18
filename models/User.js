@@ -14,7 +14,7 @@ const UserSchema = new Schema( {
 	},
 	email: {
 		type: String,
-		required: true
+		// required: true
 	},
 	password: {
 		type: String,
@@ -35,10 +35,7 @@ const UserSchema = new Schema( {
 	phone: {
 		type: String,
 	},
-	firstName: {
-		type: String,
-	},
-	lastName: {
+	userName: {
 		type: String,
 	},
 	country: {
