@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bodyParser = require("body-parser");
 const mongoose = require("./mongoose/mongoose");
-var cors = require('cors');
+var cors = require("cors");
 // App instance : Set app equal to the object returned by express();
 const app = express();
 
@@ -42,15 +42,13 @@ app.use(function (req, res, next) {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
-// There is our Routes 
+// There is our Routes
 
 const users = require("./routes/api/users");
 app.use("/api/users", users);
 
 const packages = require("./routes/api/packages");
 app.use("/api/packages", packages);
-
 
 // I am Checking Internet that our server is live or not!
 
@@ -65,6 +63,6 @@ app.get("/", function (req, res, next) {
 });
 
 // Set up a port
-const port = process.env.PORT || 8080;
+const port = 8080;
 
 app.listen(port, () => console.log(`Server running on port: ${port}`));
