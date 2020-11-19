@@ -24,7 +24,7 @@ router.post("/otp", async function (req, res) {
   User.findOne(isNaN(Number(to)) ? { email: to } : { phone: to }).then(
     (user) => {
       if (!user) {
-        return res.status(202).json({
+        return res.status(400).json({
           success: false,
           message: "There is no user according this detail",
         });

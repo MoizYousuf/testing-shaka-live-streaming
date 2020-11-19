@@ -8,7 +8,7 @@ function mail(too) {
       pass: mailer.MAILGUN_PASSWORD, // generated ethereal password
     },
   });
-  const otp = Math.floor(Math.random() * 600000 + 1);
+  const otp = Math.floor(100000 + Math.random() * 900000);
   // send mail with defined transport object
   let info = transporter.sendMail({
     from: "moizyousuf24@gmail.com", // sender address

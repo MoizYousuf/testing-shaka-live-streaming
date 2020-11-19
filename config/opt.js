@@ -6,7 +6,7 @@ const otp = (to) => {
     apiSecret: "r9rqpAR2nYejcFnQ",
   });
 
-  const otp = Math.floor(Math.random() * 999999 + 1);
+  const otp = Math.floor(100000 + Math.random() * 900000)
   const from = "Vonage APIs";
   const text = `SHAKA, Hello, How are you. your otp code is ${otp}`;
   //   nexmo.message.sendSms(from, Number(to), text);
