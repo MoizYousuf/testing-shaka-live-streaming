@@ -21,24 +21,26 @@ const mail = require("../../config/mail");
 
 router.post("/otp", async function (req, res) {
   let { to } = req.body;
-  const nexmo = new Nexmo({
-    apiKey: "d581f3d7",
-    apiSecret: "r9rqpAR2nYejcFnQ",
-  });
-
-  const otp = Math.floor(Math.random() * 6000 + 1);
-  console.log(otp);
-  const from = "Vonage APIs";
-  // const to = "923172874198";
-  const text = `SHAKA, Hello, How are you. your otp code is ${otp}`;
-
-  // nexmo.message.sendSms(from, to, text);
-  res.status(200).json({
-    success: true,
-    messsage: "Code sent successfully on your phone number",
-    otp,
-    to,
-  });
+  User.findOne(isNaN(Number(to)) ? { email: to } : { phone: to }).then(
+    (user) => {
+      if (!user) {
+        return res.status(202).json({
+          success: false,
+          message: "There is no user according this detail",
+        });
+      }
+      if (user) {
+        res.status(200).json({
+          success: true,
+          messsage: `Code sent successfully on your ${
+            !isNaN(Number(to)) ? "Phone Number" : "Mail"
+          }`,
+          otp: !isNaN(Number(to)) ? otp(Number(to)) : mail(to),
+          id: user._id,
+        });
+      }
+    }
+  );
 });
 
 // // Reset Password
@@ -59,26 +61,24 @@ router.post("/otp", async function (req, res) {
 // });
 
 router.post("/resetPassword", (req, res) => {
-  let { password, number } = req.body;
+  let { password, id } = req.body;
   bcrypt.genSalt(10, (err, salt) => {
     console.log("==");
     bcrypt.hash(password, salt, (err, hash) => {
-      User.findOneAndUpdate(
-        { phone: number },
-        { password: hash },
-        (error, result) => {
-          if (error) {
-            console.log("ERROR", error);
-            res
-              .status(204)
-              .json({ success: false, message: "Your password is not update" });
-          } else {
-            res
-              .status(200)
-              .json({ success: true, message: "Password is updated" });
-          }
+      User.findByIdAndUpdate(id, { password: hash }, (error, result) => {
+        console.log("BHAI RESULT CHECK KAR LE ", result);
+        if (!result) {
+          console.log("ERROR", error);
+          res.status(400).json({
+            success: false,
+            message: "Please Enter Your Correct Detail",
+          });
+        } else {
+          res
+            .status(200)
+            .json({ success: true, message: "Password is updated" });
         }
-      );
+      });
       // res.send(hash)
     });
   });
@@ -272,6 +272,7 @@ router.put("/", authenticateToken, async function (req, res) {
         success: true,
         message: "User Update Succesfully",
         user: result,
+        whatIsNew: req.body
       });
     } else {
       res
@@ -316,6 +317,7 @@ router.post("/signUp", function (req, res) {
           day: req.body.day || "",
           password: req.body.password,
           type: type,
+          role: req.body.role || "",
           subType: req.body.subType || "",
           emailVerified: true,
           status: "active",

@@ -48,6 +48,9 @@ const UserSchema = new Schema({
   type: {
     type: String,
   },
+  role: {
+    type: String,
+  },
   day: {
     type: String,
   },
