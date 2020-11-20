@@ -215,48 +215,54 @@ router.post("/login", async function (req, res) {
         .json({ success: false, message: "User Does not Found" });
     }
     if (user) {
-      token = generateAccessToken(
-        email
-          ? {
-              email: user.email,
-              password: user.password,
-              _id: user._id,
-              type: user.type,
-              subType: user.subType,
-            }
-          : {
-              phone: user.phone,
-              password: user.password,
-              _id: user._id,
-              type: user.type,
-              subType: user.subType,
-            }
-      );
-      bcrypt.compare(password, user.password).then((isMatch) => {
-        // If the password matches isMatch will be true.
+      if (user.emailVerified) {
+        token = generateAccessToken(
+          email
+            ? {
+                email: user.email,
+                password: user.password,
+                _id: user._id,
+                type: user.type,
+                subType: user.subType,
+              }
+            : {
+                phone: user.phone,
+                password: user.password,
+                _id: user._id,
+                type: user.type,
+                subType: user.subType,
+              }
+        );
+        bcrypt.compare(password, user.password).then((isMatch) => {
+          // If the password matches isMatch will be true.
 
-        if (isMatch) {
-          // User found
+          if (isMatch) {
+            // User found
 
-          // Get current time stamp and save it as last login time
-          const userField = {};
-          userField.lastLoginDateAndTime = Math.round(
-            new Date().getTime() / 1000
-          );
-          let go = email ? { email } : { phone };
-          // Save the last login data and time for this user.
-          User.findOneAndUpdate(go, { $set: userField }, { new: true })
-            .then((user) => {
-              return res.status(200).json({ success: true, token, user });
-            })
-            .catch((errors) => res.json(errors));
-        } else {
-          // If the password does not match
-          return res
-            .status(202)
-            .json({ success: false, message: "password Incorrect" });
-        }
-      });
+            // Get current time stamp and save it as last login time
+            const userField = {};
+            userField.lastLoginDateAndTime = Math.round(
+              new Date().getTime() / 1000
+            );
+            let go = email ? { email } : { phone };
+            // Save the last login data and time for this user.
+            User.findOneAndUpdate(go, { $set: userField }, { new: true })
+              .then((user) => {
+                return res.status(200).json({ success: true, token, user });
+              })
+              .catch((errors) => res.json(errors));
+          } else {
+            // If the password does not match
+            return res
+              .status(202)
+              .json({ success: false, message: "password Incorrect" });
+          }
+        });
+      }else{
+        return res
+              .status(202)
+              .json({ success: false, message: "Please Verify Your Email or Password" });
+      }
     }
   });
 });
@@ -272,7 +278,7 @@ router.put("/", authenticateToken, async function (req, res) {
         success: true,
         message: "User Update Succesfully",
         user: result,
-        whatIsNew: req.body
+        whatIsNew: req.body,
       });
     } else {
       res
@@ -319,7 +325,7 @@ router.post("/signUp", function (req, res) {
           type: type,
           role: req.body.role || "",
           subType: req.body.subType || "",
-          emailVerified: true,
+          emailVerified: false,
           status: "active",
           notificationIds: [],
           deletedNotificationsIds: [],
