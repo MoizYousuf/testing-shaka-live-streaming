@@ -261,7 +261,7 @@ router.post("/login", async function (req, res) {
       }else{
         return res
               .status(202)
-              .json({ success: false, message: "Please Verify Your Email or Password" });
+              .json({ success: false, message: "Please Verify Your Email or Phone Number" });
       }
     }
   });
