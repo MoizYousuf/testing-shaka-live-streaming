@@ -259,6 +259,23 @@ router.post("/login", async function (req, res) {
           }
         });
       } else {
+        token = generateAccessToken(
+          email
+            ? {
+                email: user.email,
+                password: user.password,
+                _id: user._id,
+                type: user.type,
+                subType: user.subType,
+              }
+            : {
+                phone: user.phone,
+                password: user.password,
+                _id: user._id,
+                type: user.type,
+                subType: user.subType,
+              }
+        );
         return res.status(202).json({
           success: false,
           message: "Please Verify Your Email or Phone Number",
