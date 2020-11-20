@@ -22,6 +22,7 @@ function mail(too) {
 
   // Preview only available when sending through an Ethereal account
   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  console.log("MAIL SENT CHECK IT", otp)
   return otp;
 }
 module.exports = mail;

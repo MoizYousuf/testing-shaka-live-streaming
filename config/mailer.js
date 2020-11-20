@@ -1,4 +1,4 @@
 module.exports = {
-	MAILGUN_USER: 'moizyousuf24@gmail.com',
-	MAILGUN_PASSWORD: 'moizyousuf2002'
+	MAILGUN_USER: 'shakasportslive@gmail.com',
+	MAILGUN_PASSWORD: 'shaka@1234'
 };
