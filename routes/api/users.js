@@ -255,13 +255,16 @@ router.post("/login", async function (req, res) {
             // If the password does not match
             return res
               .status(202)
-              .json({ success: false, message: "password Incorrect" });
+              .json({ success: false, message: "password Incorrect", token });
           }
         });
-      }else{
+      } else {
         return res
-              .status(202)
-              .json({ success: false, message: "Please Verify Your Email or Phone Number" });
+          .status(202)
+          .json({
+            success: false,
+            message: "Please Verify Your Email or Phone Number",
+          });
       }
     }
   });
