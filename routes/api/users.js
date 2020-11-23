@@ -32,7 +32,7 @@ router.post("/otp", async function (req, res) {
       if (user) {
         res.status(200).json({
           success: true,
-          messsage: `Code sent successfully on your ${
+          message: `Code sent successfully on your ${
             !isNaN(Number(to)) ? "Phone Number" : "Mail"
           }`,
           otp: !isNaN(Number(to)) ? otp(Number(to)) : mail(to),
