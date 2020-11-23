@@ -9,7 +9,7 @@ const otp = (to) => {
   const otp = Math.floor(100000 + Math.random() * 900000);
   const from = "Vonage APIs";
   const text = `SHAKA, Hello, How are you. your otp code is ${otp}`;
-  nexmo.message.sendSms(from, Number(to), text);
+  // nexmo.message.sendSms(from, Number(to), text);
   return otp;
   //   const to = to  ;
 };
