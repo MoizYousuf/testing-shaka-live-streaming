@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Page Title</title>
+  </head>
+  <body>
+    <h1>This is a Heading</h1>
+    <p>This is a paragraph.</p>
+    <script>
+      let array = ["999", "9099"];
+      let firstVar = array[0].split("");
+      let secondVar = array[1].split("");
+      let totalCarry = 0;
+      let currentCarry = 0;
+      let mapLength =
+        firstVar.length >= secondVar.length
+          ? firstVar.length - 1
+          : secondVar.length - 1;
+      for (let i = mapLength; i >= 0; i--) {
+        let val = firstVar[i];
+        let num = Number(val);
+        let secNum = Number(secondVar[i]);
+        let afterPlus = !secNum
+          ? currentCarry + num
+          : num
+          ? currentCarry + num + secNum
+          : currentCarry + secNum;
+        let totalLength = String(afterPlus).length;
+        if (totalLength > 1) {
+          if (i == 0) {
+          } else {
+            currentCarry = String(afterPlus).substring(0, 1);
+            totalCarry = totalCarry + 1;
+          }
+        }
+      }
+
+      console.log("bhdwe dalle kunjur", totalCarry);
+    </script>
+  </body>
+</html>

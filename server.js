@@ -50,19 +50,10 @@ app.use("/api/users", users);
 const packages = require("./routes/api/packages");
 app.use("/api/packages", packages);
 
-// I am Checking Internet that our server is live or not!
-
-app.get("/", function (req, res, next) {
-  setTimeout(function () {
-    try {
-      throw new Error("BROKEN");
-    } catch (err) {
-      next(err);
-    }
-  }, 100);
-});
+const events = require("./routes/api/events");
+app.use("/api/events", events);
 
 // Set up a port
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`Server running on port: ${port}`)); 
+app.listen(port, () => console.log(`Server running on port: ${port}`));
