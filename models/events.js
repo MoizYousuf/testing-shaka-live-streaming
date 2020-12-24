@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const User = require("./User");
 const Schema = mongoose.Schema;
 
 /**
@@ -10,7 +11,7 @@ const EventSchema = new Schema({
     type: String,
   },
   tags: {
-    type: String,
+    type: Array,
   },
   locations: {
     type: String,
@@ -26,6 +27,7 @@ const EventSchema = new Schema({
   },
   userId: {
     type: String,
+    ref: "users",
   },
   startAge: {
     type: Number,

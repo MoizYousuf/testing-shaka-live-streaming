@@ -37,6 +37,7 @@ router.post("/", authenticateToken, function (req, res) {
 });
 router.get("/", authenticateToken, function (req, res) {
   Events.find({})
+    .populate("userId")
     .then((event) => {
       return res.status(200).json({
         success: true,
@@ -46,9 +47,9 @@ router.get("/", authenticateToken, function (req, res) {
     })
     .catch((err) => console.log("DONE ERRO", err));
 });
-router.get("/myevents", authenticateToken, function (req, res) {
+router.get("/myevents", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
-  Events.find({userId: user._id})
+  Events.find({ userId: user._id })
     .then((event) => {
       return res.status(200).json({
         success: true,
