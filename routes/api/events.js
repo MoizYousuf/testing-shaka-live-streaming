@@ -13,6 +13,7 @@ const {
   authenticateToken,
   getDetail,
 } = require("../../config/jwtToken");
+const { route } = require("./users");
 const router = express.Router();
 
 router.post("/", authenticateToken, function (req, res) {
@@ -22,7 +23,7 @@ router.post("/", authenticateToken, function (req, res) {
   for (let i = 0; i < keys.length; i++) {
     data[keys[i]] = req.body[keys[i]];
   }
-  const newEvent = new Events({ ...data, userId: user._id });
+  const newEvent = new Events({ ...data, userId: user._id, status: false });
   newEvent
     .save()
     .then((package) => {
@@ -36,7 +37,7 @@ router.post("/", authenticateToken, function (req, res) {
     });
 });
 router.get("/", authenticateToken, function (req, res) {
-  Events.find({})
+  Events.find({ status: true })
     .populate("userId")
     .then((event) => {
       return res.status(200).json({
@@ -55,6 +56,28 @@ router.get("/myevents", authenticateToken, async function (req, res) {
         success: true,
         data: event,
         message: "Got All Events Successfully",
+      });
+    })
+    .catch((err) => console.log("DONE ERRO", err));
+});
+
+router.put("/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      userId: user._id,
+    },
+    {
+      status: req.body.stream == 1,
+    }
+  )
+    .then((event) => {
+      return res.status(200).json({
+        success: true,
+        data: { status: req.body.stream == 1 },
+
+        message: "Update Successfully",
       });
     })
     .catch((err) => console.log("DONE ERRO", err));

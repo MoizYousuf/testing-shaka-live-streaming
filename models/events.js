@@ -41,6 +41,9 @@ const EventSchema = new Schema({
   playbackId: {
     type: String,
   },
+  status: {
+    type: Boolean,
+  },
   date: {
     type: Date,
     default: Date.now,
