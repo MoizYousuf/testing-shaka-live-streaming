@@ -83,4 +83,54 @@ router.put("/:id", authenticateToken, async function (req, res) {
     .catch((err) => console.log("DONE ERRO", err));
 });
 
+router.post("/:id/:is", authenticateToken, async function (req, res) {
+  let is = req.params.is == 0;
+  let user = await getDetail(req, res);
+  Events.findById(req.params.id)
+    .then((event) => {
+      if (event && event !== null) {
+        Events.findOneAndUpdate(
+          {
+            _id: req.params.id,
+            userId: user._id,
+          },
+          {
+            watchings: is
+              ? event.watchings + 1
+              : event.watchings == 0
+              ? 0
+              : event.watchings - 1,
+          }
+        )
+          .then((event) => {
+            return res.status(200).json({
+              success: true,
+              data: {
+                watchings: is
+                  ? event.watchings + 1
+                  : event.watchings == 0
+                  ? 0
+                  : event.watchings - 1,
+              },
+
+              message: "Update Successfully",
+            });
+          })
+          .catch((err) => console.log("DONE ERRO", err));
+      } else {
+        res.status(201).json({
+          success: false,
+          message: "Events Not found maybe you are sending wrong id",
+        });
+      }
+    })
+    .catch((err) => {
+      console.log("CHEDCK ", err);
+      res.status(500).json({
+        success: false,
+        message: "some error occured from the server",
+      });
+    });
+});
+
 module.exports = router;

@@ -22,6 +22,13 @@ const EventSchema = new Schema({
   link: {
     type: String,
   },
+  shakas: {
+    type: Array,
+  },
+  watchings: {
+    type: Number,
+    default: 0,
+  },
   description: {
     type: String,
   },

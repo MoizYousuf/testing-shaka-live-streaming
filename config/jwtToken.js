@@ -12,7 +12,7 @@ module.exports.Jwt = function Jwt(token) {
 module.exports.generateAccessToken = function generateAccessToken(username) {
   // expires after half and hour (1800 seconds = 30 minutes)
   console.log("TOKEN", secretToken);
-  return jwt.sign(username, secretToken, { expiresIn: "1800s" });
+  return jwt.sign(username, secretToken, { expiresIn: "180000s" });
 };
 
 module.exports.authenticateToken = function authenticateToken(req, res, next) {
