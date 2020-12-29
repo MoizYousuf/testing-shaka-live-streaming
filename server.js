@@ -13,13 +13,15 @@ const io = require("socket.io")(http);
  * bodyParser.json() returns a function that is passed as a param to app.use() as middleware
  * With the help of this method, we can now send JSON to our express application.
  */
-
+let watchingsData = [];
 io.on("connection", function (socket) {
-  console.log("USer COnnected");
-  // socket.on("streaming", msg => {
-  //   console.log(msg);
-  //   // io.emit("chat message", msg);
-  // });
+  console.log("USer Connectd");
+  socket.on("watchings", (msg) => {
+    watchingsData.push(msg);
+    console.log(msg, watchingsData);
+    io.emit("watchings", watchingsData);
+    // io.emit("chat message", msg);
+  });
   socket.on("disconnect", function () {
     console.log("Got disconnect!");
   });

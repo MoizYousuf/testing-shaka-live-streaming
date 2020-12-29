@@ -132,5 +132,30 @@ router.post("/:id/:is", authenticateToken, async function (req, res) {
       });
     });
 });
+router.get("/watchings/:id", authenticateToken, async function (req, res) {
+  // let user = await getDetail(req, res);
+  Events.findById(req.params.id)
+    .then((event) => {
+      if (event && event !== null) {
+        res.status(200).json({
+          success: true,
+          data: { watchings: event.watchings },
+          message: "Watchings Gotted",
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: "Events Not found maybe you sent wrong id",
+        });
+      }
+    })
+    .catch((err) => {
+      console.log("CHEDCK ", err);
+      res.status(500).json({
+        success: false,
+        message: "some error occured from the server",
+      });
+    });
+});
 
 module.exports = router;
