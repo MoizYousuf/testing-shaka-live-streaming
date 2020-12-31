@@ -14,14 +14,28 @@ const io = require("socket.io")(http);
  * With the help of this method, we can now send JSON to our express application.
  */
 let watchingsData = [];
+let shakas = [];
 io.on("connection", function (socket) {
   console.log("USer Connectd");
   socket.on("watchings", (msg) => {
     watchingsData.push(msg);
-    console.log(msg, watchingsData);
+    console.log("STARTING", watchingsData);
     io.emit("watchings", watchingsData);
     // io.emit("chat message", msg);
   });
+  socket.on("endWatchings", (msg) => {
+    watchingsData.push(msg);
+    console.log("ENDING", watchingsData);
+    io.emit("watchings", watchingsData);
+    // io.emit("chat message", msg);
+  });
+
+  socket.on("shakas", (msg) => {
+    console.log("WOW", msg)
+    shakas.push(msg);
+    io.emit("shakas", shakas);
+  });
+
   socket.on("disconnect", function () {
     console.log("Got disconnect!");
   });
