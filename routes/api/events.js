@@ -60,6 +60,25 @@ router.get("/myevents", authenticateToken, async function (req, res) {
     })
     .catch((err) => console.log("DONE ERRO", err));
 });
+router.get("/myevents/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findById(req.params.id)
+    .then((event) => {
+      console.log("Status", event);
+      return res.status(200).json({
+        success: true,
+        data: event,
+        message: "Got Event By Id Successfully",
+      });
+    })
+    .catch((err) => {
+      console.log("error", err);
+      res.status("500").json({
+        success: false,
+        message: "Please Make Sure Your Id is correct",
+      });
+    });
+});
 
 router.put("/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
