@@ -101,6 +101,39 @@ router.put("/:id", authenticateToken, async function (req, res) {
     })
     .catch((err) => console.log("DONE ERRO", err));
 });
+router.delete("/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findById(req.params.id)
+    .then((event) => {
+      if (event && event.userId == user._id) {
+        Events.findByIdAndDelete(req.params.id)
+          .then((event) => {
+            return res.status(200).json({
+              success: true,
+              message: "Delete Successfully",
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              success: false,
+              message: "Event Not Deleted",
+            });
+          });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: "You are not able to delete this event",
+        });
+      }
+    })
+    .catch((err) => {
+      console.log("error", err);
+      res.status(500).json({
+        success: false,
+        message: "You are not able to delete this event",
+      });
+    });
+});
 
 router.post("/:id/:is", authenticateToken, async function (req, res) {
   let is = req.params.is == 0;
