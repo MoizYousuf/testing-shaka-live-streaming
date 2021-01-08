@@ -48,14 +48,54 @@ router.get("/", authenticateToken, function (req, res) {
     })
     .catch((err) => console.log("DONE ERRO", err));
 });
+router.get("/save", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.find()
+    .populate("userId")
+    .then(async (event) => {
+      let events = [];
+      await event.map(async (val, index) => {
+        if (val.saved && val.saved.length > 0) {
+          let is = false;
+          await val.saved.map((value, i) => {
+            if (value == user._id) {
+              is = true;
+            }
+          });
+          if (is) {
+            events.push(val);
+          }
+        }
+      });
+      return res.status(200).json({
+        success: true,
+        data: events,
+        message: "Got All Yours Saved Videos Successfully",
+      });
+    })
+    .catch((err) => console.log("DONE ERRO", err));
+});
 router.get("/myevents", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
-  Events.find({ userId: user._id })
+  Events.find({ userId: user._id, isStream: false })
     .then((event) => {
       return res.status(200).json({
         success: true,
         data: event,
         message: "Got All Events Successfully",
+      });
+    })
+    .catch((err) => console.log("DONE ERRO", err));
+});
+router.get("/myvideos", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.find({ userId: user._id, isStream: true })
+    .populate("userId")
+    .then((event) => {
+      return res.status(200).json({
+        success: true,
+        data: event,
+        message: "Got All Your Videos Successfully",
       });
     })
     .catch((err) => console.log("DONE ERRO", err));
@@ -80,6 +120,74 @@ router.get("/myevents/:id", authenticateToken, async function (req, res) {
     });
 });
 
+router.delete("/save/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findOne({
+    _id: req.params.id,
+  })
+    .then((item) => {
+      if (item) {
+        Events.findOneAndUpdate(
+          {
+            _id: req.params.id,
+          },
+          { saved: item.saved.filter((val) => val !== user._id) }
+        )
+          .then((event) => {
+            return res.status(200).json({
+              success: true,
+              data: event,
+              message: "Update Successfully",
+            });
+          })
+          .catch((err) =>
+            res
+              .status(500)
+              .json({ success: false, message: "Can`t update this events" })
+          );
+      } else {
+        res.status(500).json({ success: false, message: "Event Not Found" });
+      }
+    })
+    .catch((err) =>
+      res
+        .status(500)
+        .json({ success: false, message: "Can`t update this events" })
+    );
+});
+router.put("/save/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findById(req.params.id)
+    .then((item) => {
+      if (item) {
+        Events.findOneAndUpdate(
+          {
+            _id: req.params.id,
+          },
+          { saved: [...item.saved, user._id] }
+        )
+          .then((event) => {
+            return res.status(200).json({
+              success: true,
+              data: event,
+              message: "Update Successfully",
+            });
+          })
+          .catch((err) =>
+            res
+              .status(500)
+              .json({ success: false, message: "Can`t update this events" })
+          );
+      } else {
+        res.status(500).json({ success: false, message: "Event Not Found" });
+      }
+    })
+    .catch((err) =>
+      res
+        .status(500)
+        .json({ success: false, message: "Can`t update this events" })
+    );
+});
 router.put("/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
   Events.findOneAndUpdate(
@@ -89,6 +197,7 @@ router.put("/:id", authenticateToken, async function (req, res) {
     },
     {
       status: req.body.stream == 1,
+      isStream: req.body.stream !== 1,
     }
   )
     .then((event) => {
