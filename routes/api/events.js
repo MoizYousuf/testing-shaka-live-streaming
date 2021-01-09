@@ -194,10 +194,12 @@ router.put("/:id", authenticateToken, async function (req, res) {
     {
       _id: req.params.id,
       userId: user._id,
+      data: Date.now,
     },
     {
       status: req.body.stream == 1,
       isStream: req.body.stream !== 1,
+      assetId: req.body.assetId,
     }
   )
     .then((event) => {

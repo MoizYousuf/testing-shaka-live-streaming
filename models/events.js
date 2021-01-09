@@ -48,6 +48,10 @@ const EventSchema = new Schema({
   playbackId: {
     type: String,
   },
+  assetId: {
+    type: String,
+    default: "",
+  },
   isStream: {
     type: Boolean,
     default: false,
