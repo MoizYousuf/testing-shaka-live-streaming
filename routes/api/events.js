@@ -321,4 +321,25 @@ router.get("/watchings/:id", authenticateToken, async function (req, res) {
     });
 });
 
+// SEARCH API IMPLEMENTATION FULLY CUSTOM BY ME!!
+
+router.get("/search", authenticateToken, function (req, res) {
+  let query = req.query;
+  console.log("WOW THIS IS NICE!!", query);
+  Events.find({ status: true })
+    .populate("userId")
+    .then(async (event) => {
+      let dataWhenItsFilteredFully = await event.filter((val) =>
+        val.eventTitle.includes(req.query.eventTitle)
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: dataWhenItsFilteredFully,
+        message: "Got All Events Successfully",
+      });
+    })
+    .catch((err) => console.log("DONE ERRO", err));
+});
+
 module.exports = router;
