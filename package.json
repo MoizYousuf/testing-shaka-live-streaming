@@ -31,5 +31,8 @@
   },
   "engines": {
     "node": "12.18.1"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3"
   }
 }
