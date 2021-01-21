@@ -277,7 +277,6 @@ router.post("/login", async function (req, res) {
               }
         );
 
-        
         return res.status(202).json({
           success: false,
           message: "Please Verify Your Email or Phone Number",
@@ -285,6 +284,12 @@ router.post("/login", async function (req, res) {
         });
       }
     }
+  });
+});
+router.get("/", authenticateToken, async function (req, res) {
+  return res.status(200).json({
+    success: true,
+    message: "User Logged In",
   });
 });
 // SignUp
