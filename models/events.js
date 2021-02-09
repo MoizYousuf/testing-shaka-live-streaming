@@ -52,6 +52,10 @@ const EventSchema = new Schema({
     type: String,
     default: "",
   },
+  age: {
+    type: Number,
+    default: 0,
+  },
   sport: {
     type: String,
     default: "",
