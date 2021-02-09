@@ -100,6 +100,26 @@ router.get("/myvideos", authenticateToken, async function (req, res) {
     })
     .catch((err) => console.log("DONE ERRO", err));
 });
+router.delete("/myvideos/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findOneAndDelete({
+    userId: user._id,
+    _id: req.params.id,
+    isStream: true,
+  })
+    .then((event) => {
+      return res.status(200).json({
+        success: true,
+        message: "Your Video Delete Successfully",
+      });
+    })
+    .catch((err) =>
+      res.status(400).json({
+        success: false,
+        message: "Your Video Not Found or Not Deleted",
+      })
+    );
+});
 router.get("/myevents/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
   Events.findById(req.params.id)

@@ -81,6 +81,16 @@ const UserSchema = new Schema({
   lastLoginDateAndTime: {
     type: String,
   },
+  subscription: {
+    type: Boolean,
+    default: false,
+  },
+  subscriptionStartDate: {
+    type: String,
+  },
+  subscriptionEndDate: {
+    type: String,
+  },
   date: {
     type: Date,
     default: Date.now,
