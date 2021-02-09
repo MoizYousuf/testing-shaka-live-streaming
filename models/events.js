@@ -52,6 +52,10 @@ const EventSchema = new Schema({
     type: String,
     default: "",
   },
+  sport: {
+    type: String,
+    default: "",
+  },
   isStream: {
     type: Boolean,
     default: false,
