@@ -31,7 +31,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("shakas", (msg) => {
-    console.log("WOW", msg)
+    console.log("WOW", msg);
     shakas.push(msg);
     io.emit("shakas", shakas);
   });
@@ -81,6 +81,9 @@ app.use("/api/packages", packages);
 
 const events = require("./routes/api/events");
 app.use("/api/events", events);
+
+const payments = require("./routes/api/payments");
+app.use("/api/payments", payments);
 
 // Set up a port
 const port = process.env.PORT || 5000;
