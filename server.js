@@ -6,6 +6,7 @@ var cors = require("cors");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const morgan = require("morgan");
 // App instance : Set app equal to the object returned by express();
 
 /**
@@ -42,7 +43,10 @@ io.on("connection", function (socket) {
 });
 
 app.use(cors());
-
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.use(express.static('uploads'));
+// app.use(express.static(__dirname, "uploads "));
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
   res.setHeader("Access-Control-Allow-Origin", "*");

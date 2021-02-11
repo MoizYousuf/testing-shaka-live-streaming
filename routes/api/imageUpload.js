@@ -27,6 +27,7 @@ router.post("/", upload.single("photo"), async function (req, res) {
       filename: req.file.filename,
       path: req.file.path,
       size: req.file.size,
+      ...req.file,
       success: true,
       message: "image upload successfully",
     });
