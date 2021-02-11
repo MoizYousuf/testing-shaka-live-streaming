@@ -10,6 +10,9 @@ const EventSchema = new Schema({
   eventTitle: {
     type: String,
   },
+  thumbnail: {
+    type: String,
+  },
   tags: {
     type: Array,
   },

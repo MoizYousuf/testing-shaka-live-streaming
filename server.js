@@ -85,6 +85,9 @@ app.use("/api/events", events);
 const payments = require("./routes/api/payments");
 app.use("/api/payments", payments);
 
+const image = require("./routes/api/imageUpload");
+app.use("/api/image", image);
+
 // Set up a port
 const port = process.env.PORT || 5000;
 
