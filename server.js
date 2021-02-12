@@ -45,7 +45,7 @@ io.on("connection", function (socket) {
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-app.use(express.static('uploads'));
+app.use(express.static("uploads"));
 // app.use(express.static(__dirname, "uploads "));
 app.use(function (req, res, next) {
   // Website you wish to allow to connect

@@ -21,7 +21,8 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 router.post("/", upload.single("photo"), async function (req, res) {
-  if (req.file) {
+  console.log("JUST CHECKING", req.file);
+  if (req && req.file) {
     res.status(200).json({
       originalname: req.file.originalname,
       filename: req.file.filename,
