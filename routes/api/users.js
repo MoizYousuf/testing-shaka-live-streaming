@@ -22,20 +22,21 @@ const mail = require("../../config/mail");
 router.post("/otp", async function (req, res) {
   let { to } = req.body;
   User.findOne(isNaN(Number(to)) ? { email: to } : { phone: to }).then(
-    (user) => {
+    async (user) => {
       if (!user) {
         return res.status(400).json({
           success: false,
           message: "There is no user according this detail",
         });
       }
+      let otp = !isNaN(Number(to)) ? otp(Number(to)) : await mail(to);
       if (user) {
         res.status(200).json({
           success: true,
           message: `Code sent successfully on your ${
             !isNaN(Number(to)) ? "Phone Number" : "Mail"
           }`,
-          otp: !isNaN(Number(to)) ? otp(Number(to)) : mail(to),
+          otp,
           id: user._id,
         });
       }
@@ -371,7 +372,7 @@ router.post("/signUp", function (req, res) {
             newUser.password = hash;
 
             // Then save user in the database using newUser.save() and then send the user as response on success and error on failure.
-            newUser.save().then((user) => {
+            newUser.save().then(async (user) => {
               let token = generateAccessToken(
                 email
                   ? {
@@ -389,11 +390,12 @@ router.post("/signUp", function (req, res) {
                       subType: user.subType,
                     }
               );
+              const otp = phone ? otp(Number(phone)) : await mail(email);
               return res.status(200).json({
                 success: true,
                 token,
                 user,
-                otp: phone ? otp(Number(phone)) : mail(email),
+                otp,
                 message: "User Registered Successfully.",
               });
             });
