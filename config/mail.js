@@ -58,7 +58,7 @@ async function mail(too) {
     from: "shakasportslive@gmail.com", // sender address
     to: too, // list of receivers
     subject: "SHAKA OTP", // Subject line
-    text: "SHAKA HERE IS YOUR OTP COED", // plain text body
+    text: "SHAKA HERE IS YOUR OTP CODE", // plain text body
     html: `Your Otp Code is: <b>${otp}</b>`, // html body
   });
 
