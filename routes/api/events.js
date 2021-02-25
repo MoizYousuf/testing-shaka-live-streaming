@@ -208,6 +208,33 @@ router.put("/save/:id", authenticateToken, async function (req, res) {
         .json({ success: false, message: "Can`t update this events" })
     );
 });
+router.put("/updateEvent/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      userId: user._id,
+      data: Date.now,
+    },
+    {
+      ...req.body,
+    }
+  )
+    .then((event) => {
+      return res.status(200).json({
+        success: true,
+        data: event,
+        whatIsNew: req.body,
+        message: "Update Successfully",
+      });
+    })
+    .catch((err) =>
+      res.status(200).json({
+        success: false,
+        message: "Event Not Found",
+      })
+    );
+});
 router.put("/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
   Events.findOneAndUpdate(
