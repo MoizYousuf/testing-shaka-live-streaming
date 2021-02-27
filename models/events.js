@@ -45,6 +45,9 @@ const EventSchema = new Schema({
   endAge: {
     type: Number,
   },
+  paids: {
+    type: Array,
+  },
   streamId: {
     type: String,
   },

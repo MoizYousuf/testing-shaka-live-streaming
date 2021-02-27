@@ -26,6 +26,10 @@ const UserSchema = new Schema({
   googleUserId: {
     type: String,
   },
+  customerId: {
+    type: String,
+    default: false,
+  },
   registrationType: {
     type: String,
   },
@@ -89,6 +93,9 @@ const UserSchema = new Schema({
     type: String,
   },
   subscriptionEndDate: {
+    type: String,
+  },
+  interest: {
     type: String,
   },
   date: {
