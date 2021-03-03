@@ -1,3 +1,4 @@
+const Mux = require("@mux/mux-node");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -15,6 +16,11 @@ const {
 } = require("../../config/jwtToken");
 const { route } = require("./users");
 const router = express.Router();
+
+const { Video } = new Mux(
+  "983baf3d-90a1-4e70-91c4-3f1bdc59e494",
+  "2VYEZMgylLCTKfjUkgav41ptS1MkkthrxBbrDMCkoQB7GYhNswYzVOG3Ncov//mqua2bkP55fm6"
+);
 
 router.post("/", authenticateToken, function (req, res) {
   let user = getDetail(req, res);
@@ -388,5 +394,31 @@ router.get("/search", authenticateToken, function (req, res) {
     })
     .catch((err) => console.log("DONE ERRO", err));
 });
+router.get("/videoUpload", function (req, res) {
+  Video.Uploads.create({
+    cors_origin: "https://api.mux.com/video/v1/uploads",
+    new_asset_settings: {
+      playback_policy: "public",
+    },
+  })
+    .then((upload) => {
+      console.log("I GOT THE DATA", upload);
+      return res.status(200).json({
+        ...upload,
+        success: true,
+        url: upload.url,
+        message: "Uploaded",
+      });
+    })
+    .catch((err) => {
+      console.log("HERE IS ERROR", err);
+    });
+});
+// router.get("/videoUpload", function (req, res) {
+//   return res.status(200).json({
+//     success: true,
+//     message: "Uploaded",
+//   });
+// });
 
 module.exports = router;

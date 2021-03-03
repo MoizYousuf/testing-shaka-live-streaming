@@ -28,18 +28,34 @@ router.post("/", authenticateToken, async function (req, res) {
     amount: amount,
     currency: "usd",
     source: token,
+    // customer: req.body.customerId,
     description: "My First Test Charge (created for API docs)",
   });
   if (charge) {
-    Event.findByIdAndUpdate(id, {
-      $push: { paids: user._id },
-    }).then((data) => {
-      console.log("UPDATE DATA", data);
-      res.status(200).json({
-        success: true,
-        message: "Payment Success",
+    const customer = await stripe.customers.retrieve(req.body.customerId);
+    if (customer) {
+      const isUpdate = await stripe.customers.update(req.body.customerId, {
+        balance: customer.balance + (amount / 100) * 90,
       });
-    });
+      if (isUpdate) {
+        Event.findByIdAndUpdate(id, {
+          $push: { paids: user._id },
+        }).then((data) => {
+          res.status(200).json({
+            success: true,
+            message: "Payment Success",
+          });
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: "Stripe Error",
+        });
+      }
+    } else {
+      res.status(400).json({ status: false, messsage: "There is no customer" });
+    }
+    // if(customer)
 
     // User.findOneAndUpdate(
     //   { _id: user._id },
@@ -78,13 +94,11 @@ router.post("/createCustomer", authenticateToken, async (req, res, next) => {
     customerId: customer.id,
   })
     .then((data) => {
-      res
-        .status(200)
-        .json({
-          status: true,
-          messsage: "customer created",
-          data: { customerId: customer.id },
-        });
+      res.status(200).json({
+        status: true,
+        messsage: "customer created",
+        data: { customerId: customer.id },
+      });
     })
     .catch((err) => {
       res
