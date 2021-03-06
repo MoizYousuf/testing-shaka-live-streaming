@@ -14,6 +14,7 @@ const { generateAccessToken } = require("../../config/jwtToken");
 const otp = require("../../config/opt");
 const mail = require("../../config/mail");
 const Stripe = require("stripe");
+const Payment = require("../../models/Payments");
 const { default: axios } = require("axios");
 const Event = require("../../models/events");
 const stripe = Stripe(
@@ -22,90 +23,147 @@ const stripe = Stripe(
 // Otp
 
 router.post("/", authenticateToken, async function (req, res) {
-  let { amount, token, id } = req.body;
+  let { amount, token, id, acountStripeId } = req.body;
   let user = await getDetail(req, res);
   const charge = await stripe.charges.create({
     amount: amount,
     currency: "usd",
     source: token,
-    // customer: req.body.customerId,
     description: "My First Test Charge (created for API docs)",
   });
   if (charge) {
-    const customer = await stripe.customers.retrieve(req.body.customerId);
-    if (customer) {
-      const isUpdate = await stripe.customers.update(req.body.customerId, {
-        balance: customer.balance + (amount / 100) * 90,
-      });
-      if (isUpdate) {
-        Event.findByIdAndUpdate(id, {
-          $push: { paids: user._id },
-        }).then((data) => {
-          res.status(200).json({
-            success: true,
-            message: "Payment Success",
-          });
+    const transfer = await stripe.transfers.create({
+      amount: 80,
+      currency: "usd",
+      source_transaction: charge.id,
+      destination: acountStripeId,
+    });
+    if (transfer) {
+      Event.findByIdAndUpdate(id, {
+        $push: { paids: user._id },
+      }).then((data) => {
+        const newPayment = new Payment({
+          event: id,
+          senderPaymentUser: user._id,
+          user: data.userId,
+          status: true,
+          paidAmount: 0.8,
         });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: "Stripe Error",
-        });
-      }
-    } else {
-      res.status(400).json({ status: false, messsage: "There is no customer" });
-    }
-    // if(customer)
 
-    // User.findOneAndUpdate(
-    //   { _id: user._id },
-    //   { subscription: true, subscriptionStartDate: new Date() },
-    //   (err, result) => {
-    //     if (!err) {
-    //       res.status(200).json({
-    //         success: true,
-    //         message: "Payment Success",
-    //         user: result,
-    //         whatIsNew: {
-    //           subscription: true,
-    //           subscriptionStartDate: new Date(),
-    //         },
-    //       });
-    //     } else {
-    //       res
-    //         .status(203)
-    //         .json({ success: false, message: "User Not Updated", error: err });
-    //     }
-    //   }
-    // );
+        newPayment
+          .save()
+          .then((payment) => {
+            res.status(200).json({
+              success: true,
+              message: "Payment Success",
+            });
+          })
+          .catch((err) => {
+            return res
+              .status(200)
+              .json({ success: false, message: "Payment Not Added" });
+          });
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Stripe Error",
+      });
+    }
   } else {
-    res.status(400).json({ success: false, message: "Payment UnSuccess" });
+    res.status(400).json({ status: false, messsage: "There is no customer" });
   }
 });
 router.post("/createCustomer", authenticateToken, async (req, res, next) => {
   let user = await getDetail(req, res, next);
-  const customer = await stripe.customers.create({
-    description: "Shaka User Broadcaster",
+  const account = await stripe.account.create({
+    // description: "Shaka User Broadcaster",
     email: user.email,
-    balance: 2000,
+    // balance: 2000,
+    country: "US",
+    type: "custom",
+    capabilities: {
+      card_payments: { requested: true },
+      transfers: { requested: true },
+    },
     phone: user.phone,
   });
   User.findByIdAndUpdate(user._id, {
-    customerId: customer.id,
+    acountStripeId: account.id,
   })
     .then((data) => {
       res.status(200).json({
-        status: true,
-        messsage: "customer created",
-        data: { customerId: customer.id },
+        success: true,
+        messsage: "stripe account created",
+        data: { acountStripeId: account.id },
       });
     })
     .catch((err) => {
-      res
-        .status(400)
-        .json({ status: false, message: "User not updated customer created" });
+      res.status(400).json({
+        success: false,
+        message: "User not updated stripe account created",
+      });
     });
 });
+router.post("/isVerified/:id", authenticateToken, async (req, res, next) => {
+  // let user = await getDetail(req, res, next);
+  const account = await stripe.accounts.retrieve(req.params.id);
+  if (account) {
+    console.log(account);
+    let { capabilities } = account;
+    if (capabilities) {
+      let { card_payments, transfers } = capabilities;
+
+      if (card_payments == "inactive") {
+        res
+          .status(200)
+          .json({ success: false, message: "Your account is not Verified!" });
+      } else {
+        res
+          .status(200)
+          .json({ success: true, message: "Your account is Verified!" });
+      }
+    }
+  } else {
+    res.status(400).json({ success: false, messsage: "acccount is not found" });
+  }
+});
+router.post("/createLink/:id", authenticateToken, async (req, res, next) => {
+  let user = await getDetail(req, res, next);
+  const accountLink = await stripe.accountLinks.create({
+    account: req.params.id,
+    refresh_url:
+      "https://morofy-database.herokuapp.com/api/payments/redirectToApp/updated",
+    return_url:
+      "https://morofy-database.herokuapp.com/api/payments/redirectToApp/updated",
+    type: "account_onboarding",
+  });
+
+  res.status(200).json({
+    status: true,
+    messsage: "stripe account created",
+    data: accountLink,
+  });
+});
+router.get("/redirectToApp/:id", async (req, res, next) => {
+  res.redirect(`shakaapp://${req.params.id}`);
+});
+router.post(
+  "/linkWithMyAccount/:id",
+  authenticateToken,
+  async (req, res, next) => {
+    let user = await getDetail(req, res, next);
+    const card = await stripe.accounts.createExternalAccount(req.params.id, {
+      external_account: req.body.token,
+    });
+
+    res.status(200).json({
+      status: true,
+      messsage: "stripe card created",
+      data: card,
+    });
+  }
+);
 router.post("/muvi/addCard", async (req, res) => {
   axios
     .post(

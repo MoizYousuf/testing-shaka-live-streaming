@@ -26,7 +26,7 @@ const UserSchema = new Schema({
   googleUserId: {
     type: String,
   },
-  customerId: {
+  acountStripeId: {
     type: String,
     default: false,
   },
