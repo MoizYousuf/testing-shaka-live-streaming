@@ -105,7 +105,7 @@ router.post("/createCustomer", authenticateToken, async (req, res, next) => {
       });
     });
 });
-router.post("/isVerified/:id", authenticateToken, async (req, res, next) => {
+router.get("/isVerified/:id", authenticateToken, async (req, res, next) => {
   // let user = await getDetail(req, res, next);
   const account = await stripe.accounts.retrieve(req.params.id);
   if (account) {
@@ -128,12 +128,32 @@ router.post("/isVerified/:id", authenticateToken, async (req, res, next) => {
     res.status(400).json({ success: false, messsage: "acccount is not found" });
   }
 });
+router.get(
+  "/getAccountDetail/:id",
+  authenticateToken,
+  async (req, res, next) => {
+    const account = await stripe.balance.retrieve({
+      stripeAccount: req.params.id,
+    });
+    if (account) {
+      res.status(200).json({
+        success: true,
+        message: "Account Detail Got!!",
+        data: account,
+      });
+    } else {
+      res
+        .status(400)
+        .json({ success: false, messsage: "acccount is not found" });
+    }
+  }
+);
 router.post("/createLink/:id", authenticateToken, async (req, res, next) => {
   let user = await getDetail(req, res, next);
   const accountLink = await stripe.accountLinks.create({
     account: req.params.id,
     refresh_url:
-      "https://morofy-database.herokuapp.com/api/payments/redirectToApp/updated",
+      "https://morofy-database.herokuapp.com/api/payments/redirectToApp/failed",
     return_url:
       "https://morofy-database.herokuapp.com/api/payments/redirectToApp/updated",
     type: "account_onboarding",
@@ -147,6 +167,26 @@ router.post("/createLink/:id", authenticateToken, async (req, res, next) => {
 });
 router.get("/redirectToApp/:id", async (req, res, next) => {
   res.redirect(`shakaapp://${req.params.id}`);
+});
+router.get("/getAllMyPayments", authenticateToken, async (req, res, next) => {
+  let user = await getDetail(req, res, next);
+  Payment.find({ user: user._id })
+    .populate("senderPaymentUser")
+    .populate("event")
+    .then((data) => {
+      if (data && data.length > 0) {
+        res.status(200).json({
+          success: true,
+          messsage: "Got Payment Details",
+          data,
+        });
+      } else {
+        res.status(201).json({
+          success: false,
+          messsage: "There is no payments history",
+        });
+      }
+    });
 });
 router.post(
   "/linkWithMyAccount/:id",
