@@ -148,6 +148,7 @@ router.get(
     }
   }
 );
+
 router.post("/createLink/:id", authenticateToken, async (req, res, next) => {
   let user = await getDetail(req, res, next);
   const accountLink = await stripe.accountLinks.create({
@@ -188,22 +189,24 @@ router.get("/getAllMyPayments", authenticateToken, async (req, res, next) => {
       }
     });
 });
-router.post(
-  "/linkWithMyAccount/:id",
-  authenticateToken,
-  async (req, res, next) => {
-    let user = await getDetail(req, res, next);
+router.put("/linkWithMyAccount/:id", authenticateToken, async (req, res) => {
+  try {
     const card = await stripe.accounts.createExternalAccount(req.params.id, {
       external_account: req.body.token,
     });
-
+    console.log("HERE IS ERROR LETS IDENTIFY");
     res.status(200).json({
-      status: true,
-      messsage: "stripe card created",
+      success: true,
+      message: "stripe card created",
       data: card,
     });
+  } catch (error) {
+    res.status(201).json({
+      success: false,
+      message: error.message,
+    });
   }
-);
+});
 router.post("/muvi/addCard", async (req, res) => {
   axios
     .post(
