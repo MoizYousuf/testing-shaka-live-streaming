@@ -189,6 +189,69 @@ router.get("/getAllMyPayments", authenticateToken, async (req, res, next) => {
       }
     });
 });
+router.get("/getAllMyCards/:id", authenticateToken, async (req, res, next) => {
+  const accountCards = await stripe.accounts.listExternalAccounts(
+    req.params.id,
+    { object: "card" }
+  );
+  if (accountCards && accountCards.data.length > 0) {
+    res.status(200).json({
+      success: true,
+      messsage: "Got Your Cards Successfully",
+      data: accountCards.data,
+    });
+  } else {
+    res.status(201).json({
+      success: false,
+      messsage: "There is no cards",
+    });
+  }
+});
+router.post("/withdraw/:id", authenticateToken, async (req, res, next) => {
+  const payout = await stripe.payouts.create({
+    amount: 1100,
+    currency: "usd",
+  });
+
+  // const balance = await stripe.balance.retrieve({
+  //   stripeAccount: req.params.id,
+  // });
+  console.log("payouts", payout);
+  // if (bankAccount && bankAccount.data.length > 0) {
+  res.status(200).json({
+    success: true,
+    messsage: "Got Your All Bank Accounts Successfully",
+    data: payout,
+  });
+  // } else {
+  //   res.status(201).json({
+  //     success: false,
+  //     messsage: "There is no Bank Accounts",
+  //   });
+  // }
+});
+router.get(
+  "/getAllMyBankAccounts/:id",
+  authenticateToken,
+  async (req, res, next) => {
+    const bankAccount = await stripe.accounts.listExternalAccounts(
+      req.params.id,
+      { object: "bank_account" }
+    );
+    if (bankAccount && bankAccount.data.length > 0) {
+      res.status(200).json({
+        success: true,
+        messsage: "Got Your All Bank Accounts Successfully",
+        data: bankAccount.data,
+      });
+    } else {
+      res.status(201).json({
+        success: false,
+        messsage: "There is no Bank Accounts",
+      });
+    }
+  }
+);
 router.put("/linkWithMyAccount/:id", authenticateToken, async (req, res) => {
   try {
     const card = await stripe.accounts.createExternalAccount(req.params.id, {
