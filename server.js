@@ -89,6 +89,9 @@ app.use("/api/events", events);
 const payments = require("./routes/api/payments");
 app.use("/api/payments", payments);
 
+const subscriptions = require("./routes/api/subscriptions");
+app.use("/api/subscriptions", subscriptions);
+
 const image = require("./routes/api/imageUpload");
 app.use("/api/image", image);
 

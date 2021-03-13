@@ -20,6 +20,7 @@ const Event = require("../../models/events");
 const stripe = Stripe(
   "sk_test_51IOrKRCPWFz5S2kttcPONcaxqmqlXUzqP1o04NIvVaYXKhLuFqPg3b2plvOtU0hOPO3BbCK4s5T524dOKbXU0Orj00TRPwXEXe"
 );
+
 // Otp
 
 router.post("/", authenticateToken, async function (req, res) {
@@ -208,20 +209,26 @@ router.get("/getAllMyCards/:id", authenticateToken, async (req, res, next) => {
   }
 });
 router.post("/withdraw/:id", authenticateToken, async (req, res, next) => {
-  const payout = await stripe.payouts.create({
-    amount: 1100,
-    currency: "usd",
-  });
-
   // const balance = await stripe.balance.retrieve({
   //   stripeAccount: req.params.id,
   // });
-  console.log("payouts", payout);
+  const transfer = await stripe.transfers.create(
+    {
+      amount: 200,
+      currency: "usd",
+      method: "instant",
+    },
+    {
+      stripeAccount: req.params.id,
+    }
+  );
+
+  console.log("payouts", transfer);
   // if (bankAccount && bankAccount.data.length > 0) {
   res.status(200).json({
     success: true,
     messsage: "Got Your All Bank Accounts Successfully",
-    data: payout,
+    data: transfer,
   });
   // } else {
   //   res.status(201).json({
