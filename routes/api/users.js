@@ -209,83 +209,85 @@ router.get("/getUserByQuery", authenticateAdminToken, async (req, res) => {
 router.post("/login", async function (req, res) {
   let { email, phone, password } = req.body;
   let token;
-  User.findOne(email ? { email } : { phone }).then((user) => {
-    if (!user) {
-      return res
-        .status(202)
-        .json({ success: false, message: "User Does not Found" });
-    }
-    if (user) {
-      if (user.emailVerified) {
-        token = generateAccessToken(
-          email
-            ? {
-                email: user.email,
-                password: user.password,
-                _id: user._id,
-                type: user.type,
-                subType: user.subType,
-              }
-            : {
-                phone: user.phone,
-                password: user.password,
-                _id: user._id,
-                type: user.type,
-                subType: user.subType,
-              }
-        );
-        bcrypt.compare(password, user.password).then((isMatch) => {
-          // If the password matches isMatch will be true.
+  User.findOne(email ? { email: email.toLowerCase() } : { phone }).then(
+    (user) => {
+      if (!user) {
+        return res
+          .status(202)
+          .json({ success: false, message: "User Does not Found" });
+      }
+      if (user) {
+        if (user.emailVerified) {
+          token = generateAccessToken(
+            email
+              ? {
+                  email: user.email.toLowerCase(),
+                  password: user.password,
+                  _id: user._id,
+                  type: user.type,
+                  subType: user.subType,
+                }
+              : {
+                  phone: user.phone,
+                  password: user.password,
+                  _id: user._id,
+                  type: user.type,
+                  subType: user.subType,
+                }
+          );
+          bcrypt.compare(password, user.password).then((isMatch) => {
+            // If the password matches isMatch will be true.
 
-          if (isMatch) {
-            // User found
+            if (isMatch) {
+              // User found
 
-            // Get current time stamp and save it as last login time
-            const userField = {};
-            userField.lastLoginDateAndTime = Math.round(
-              new Date().getTime() / 1000
-            );
-            let go = email ? { email } : { phone };
-            // Save the last login data and time for this user.
-            User.findOneAndUpdate(go, { $set: userField }, { new: true })
-              .then((user) => {
-                return res.status(200).json({ success: true, token, user });
-              })
-              .catch((errors) => res.json(errors));
-          } else {
-            // If the password does not match
-            return res
-              .status(202)
-              .json({ success: false, message: "password Incorrect" });
-          }
-        });
-      } else {
-        token = generateAccessToken(
-          email
-            ? {
-                email: user.email,
-                password: user.password,
-                _id: user._id,
-                type: user.type,
-                subType: user.subType,
-              }
-            : {
-                phone: user.phone,
-                password: user.password,
-                _id: user._id,
-                type: user.type,
-                subType: user.subType,
-              }
-        );
+              // Get current time stamp and save it as last login time
+              const userField = {};
+              userField.lastLoginDateAndTime = Math.round(
+                new Date().getTime() / 1000
+              );
+              let go = email ? { email } : { phone };
+              // Save the last login data and time for this user.
+              User.findOneAndUpdate(go, { $set: userField }, { new: true })
+                .then((user) => {
+                  return res.status(200).json({ success: true, token, user });
+                })
+                .catch((errors) => res.json(errors));
+            } else {
+              // If the password does not match
+              return res
+                .status(202)
+                .json({ success: false, message: "password Incorrect" });
+            }
+          });
+        } else {
+          token = generateAccessToken(
+            email
+              ? {
+                  email: user.email.toLowerCase(),
+                  password: user.password,
+                  _id: user._id,
+                  type: user.type,
+                  subType: user.subType,
+                }
+              : {
+                  phone: user.phone,
+                  password: user.password,
+                  _id: user._id,
+                  type: user.type,
+                  subType: user.subType,
+                }
+          );
 
-        return res.status(202).json({
-          success: false,
-          message: "Please Verify Your Email or Phone Number",
-          token,
-        });
+          return res.status(202).json({
+            success: false,
+            message: "Please Verify Your Email or Phone Number",
+            token,
+          });
+        }
       }
     }
-  });
+  );
 });
 router.get("/", authenticateToken, async function (req, res) {
   return res.status(200).json({
@@ -342,7 +344,7 @@ router.post("/signUp", function (req, res) {
             ? req.body.facebookUserId
             : "",
           googleUserId: req.body.googleUserId ? req.body.googleUserId : "",
-          email: req.body.email ? req.body.email : "",
+          email: req.body.email ? req.body.email.toLowerCase() : "",
           country: req.body.country || "",
           phone: req.body.phone || "",
           month: req.body.month || "",
