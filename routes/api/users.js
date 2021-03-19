@@ -246,7 +246,7 @@ router.post("/login", async function (req, res) {
               userField.lastLoginDateAndTime = Math.round(
                 new Date().getTime() / 1000
               );
-              let go = email ? { email } : { phone };
+              let go = email ? { email: email.toLowerCase() } : { phone };
               // Save the last login data and time for this user.
               User.findOneAndUpdate(go, { $set: userField }, { new: true })
                 .then((user) => {
