@@ -320,7 +320,7 @@ router.put("/", authenticateToken, async function (req, res) {
 router.post("/signUp", function (req, res) {
   let { email, googleUserId, phone, type } = req.body;
 
-  User.findOne({ email }).then((user) => {
+  User.findOne({ email: email.toLowerCase() }).then((user) => {
     console.log(user);
     if (user) {
       return res
@@ -378,7 +378,7 @@ router.post("/signUp", function (req, res) {
               let token = generateAccessToken(
                 email
                   ? {
-                      email: user.email,
+                      email: user.email.toLowerCase(),
                       password: user.password,
                       _id: user._id,
                       type: user.type,
