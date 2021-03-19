@@ -21,7 +21,7 @@ const mail = require("../../config/mail");
 
 router.post("/otp", async function (req, res) {
   let { to } = req.body;
-  User.findOne(isNaN(Number(to)) ? { email: to } : { phone: to }).then(
+  User.findOne(isNaN(Number(to)) ? { email: to.toLowerCase() } : { phone: to }).then(
     async (user) => {
       if (!user) {
         return res.status(400).json({
