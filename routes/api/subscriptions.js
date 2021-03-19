@@ -18,7 +18,7 @@ const Subscription = require("../../models/Subscription");
 const { default: axios } = require("axios");
 const Event = require("../../models/events");
 const stripe = Stripe(
-  "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"
+  "sk_test_51IOrKRCPWFz5S2kttcPONcaxqmqlXUzqP1o04NIvVaYXKhLuFqPg3b2plvOtU0hOPO3BbCK4s5T524dOKbXU0Orj00TRPwXEXe"
 );
 
 // Create Subscriptions
