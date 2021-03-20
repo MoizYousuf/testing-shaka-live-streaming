@@ -54,6 +54,30 @@ router.get("/", authenticateToken, function (req, res) {
     })
     .catch((err) => console.log("DONE ERRO", err));
 });
+router.get("/currentStream/:id", authenticateToken, function (req, res) {
+  Events.findOne({ _id: req.params.id, status: true })
+    // .populate("userId")
+    .then((event) => {
+      console.log('event', event)
+      if (event) {
+        return res.status(200).json({
+          success: true,
+          message: "Streaming is currently live",
+        });
+      } else {
+        return res.status(200).json({
+          success: false,
+          message: "Streaming is currently off",
+        });
+      }
+    })
+    .catch((err) =>
+      res.status(200).json({
+        success: false,
+        message: "Streaming is currently off",
+      })
+    );
+});
 router.get("/save", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
   Events.find()
@@ -180,6 +204,24 @@ router.delete("/save/:id", authenticateToken, async function (req, res) {
       res
         .status(500)
         .json({ success: false, message: "Can`t update this events" })
+    );
+});
+router.get("/save/isSave/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findOne({ _id: req.params.id, saved: { $in: [user._id] } })
+    .then((item) => {
+      if (item) {
+        console.log("DUM", item);
+        return res.status(200).json({
+          success: true,
+          message: "Video Saved",
+        });
+      } else {
+        res.status(200).json({ success: false, message: "Video Not Saved" });
+      }
+    })
+    .catch((err) =>
+      res.status(500).json({ success: false, message: "UnSaved" })
     );
 });
 router.put("/save/:id", authenticateToken, async function (req, res) {
