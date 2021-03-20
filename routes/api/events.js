@@ -129,6 +129,7 @@ router.delete("/myvideos/:id", authenticateToken, async function (req, res) {
 router.get("/myevents/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
   Events.findById(req.params.id)
+    .populate("userId")
     .then((event) => {
       console.log("Status", event);
       return res.status(200).json({

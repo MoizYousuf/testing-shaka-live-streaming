@@ -21,27 +21,27 @@ const mail = require("../../config/mail");
 
 router.post("/otp", async function (req, res) {
   let { to } = req.body;
-  User.findOne(isNaN(Number(to)) ? { email: to.toLowerCase() } : { phone: to }).then(
-    async (user) => {
-      if (!user) {
-        return res.status(400).json({
-          success: false,
-          message: "There is no user according this detail",
-        });
-      }
-      let otp = !isNaN(Number(to)) ? otp(Number(to)) : await mail(to);
-      if (user) {
-        res.status(200).json({
-          success: true,
-          message: `Code sent successfully on your ${
-            !isNaN(Number(to)) ? "Phone Number" : "Mail"
-          }`,
-          otp,
-          id: user._id,
-        });
-      }
+  User.findOne(
+    isNaN(Number(to)) ? { email: to.toLowerCase() } : { phone: to }
+  ).then(async (user) => {
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "There is no user according this detail",
+      });
     }
-  );
+    let otp = !isNaN(Number(to)) ? otp(Number(to)) : await mail(to);
+    if (user) {
+      res.status(200).json({
+        success: true,
+        message: `Code sent successfully on your ${
+          !isNaN(Number(to)) ? "Phone Number" : "Mail"
+        }`,
+        otp,
+        id: user._id,
+      });
+    }
+  });
 });
 
 // // Reset Password
@@ -90,7 +90,7 @@ router.post("/resetPassword", (req, res) => {
 router.post("/loginViaGoogle", function (req, res) {
   let { email, id } = req.body;
   console.log(req.body);
-  User.findOne({ email }).then((user) => {
+  User.findOne({ email: email.toLowerCase() }).then((user) => {
     if (!user) {
       return res.status(202).json({ success: false });
     }
@@ -111,7 +111,7 @@ router.post("/loginViaGoogle", function (req, res) {
 router.post("/loginViaFacebook", function (req, res) {
   let { email, id } = req.body;
   console.log(req.body);
-  User.findOne({ email }).then((user) => {
+  User.findOne({ email: email.toLowerCase() }).then((user) => {
     if (!user) {
       return res.status(202).json({ success: false });
     }
