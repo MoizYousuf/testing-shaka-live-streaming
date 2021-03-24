@@ -298,27 +298,55 @@ router.put("/updateEvent/:id", authenticateToken, async function (req, res) {
 });
 router.put("/endStream/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
-  Events.findOneAndUpdate(
-    {
-      _id: req.params.id,
-      userId: user._id,
-      data: Date.now,
-    },
-    {
-      status: req.body.stream == 1,
-      isStream: req.body.stream !== 1,
-      assetId: req.body.assetId,
-    }
-  )
-    .then((event) => {
-      return res.status(200).json({
-        success: true,
-        data: { status: req.body.stream == 1 },
+  const mux_response = await mux_instance.get(
+    `/video/v1/live-streams/${req.body.mux_stream_key}`
+  );
 
-        message: "Update Successfully",
-      });
-    })
-    .catch((err) => console.log("DONE ERRO", err));
+  const mux_stream_key = mux_response.data.data;
+
+  if (mux_stream_key.length > 0) {
+    const mux_response1 = await mux_instance.get(
+      `/video/v1/assets/${
+        mux_stream_key[0].active_asset_id ||
+        (mux_stream_key[0].recent_asset_ids.length > 0 &&
+          mux_stream_key[0].recent_asset_ids[0])
+      }`
+    );
+    const mux_stream_key1 = mux_response1.data.data;
+    let assetId = mux_stream_key1.playback_ids[0].id || "";
+    Events.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: user._id,
+        // data: Date.now,
+      },
+      {
+        status: req.body.stream == 1,
+        isStream: req.body.stream !== 1,
+        assetId: assetId,
+      }
+    )
+      .then((event) => {
+        return res.status(200).json({
+          success: true,
+          data: { status: req.body.stream == 1 },
+
+          message: "Update Successfully",
+        });
+      })
+      .catch((err) =>
+        res.status(400).json({
+          success: false,
+          message: "Streaming is not ending or may be event not found",
+        })
+      );
+  } else {
+    return res.status(400).json({
+      success: false,
+
+      message: "Streaming is already ended or may be your connection lost",
+    });
+  }
 });
 router.put("/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);
@@ -426,7 +454,7 @@ router.post("/:id/:is", authenticateToken, async function (req, res) {
         message: "some error occured from the server",
       });
     });
-});
+}); 
 router.get("/watchings/:id", authenticateToken, async function (req, res) {
   // let user = await getDetail(req, res);
   Events.findById(req.params.id)
