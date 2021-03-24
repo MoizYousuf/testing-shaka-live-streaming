@@ -15,7 +15,19 @@ const {
   getDetail,
 } = require("../../config/jwtToken");
 const { route } = require("./users");
+const { default: axios } = require("axios");
 const router = express.Router();
+
+const mux_instance = axios.create({
+  baseURL: "https://api.mux.com",
+  method: "post",
+  headers: { "Content-Type": "application/json" },
+  auth: {
+    username: "09db8235-9ccd-416e-b59f-7709b8829041",
+    password:
+      "ApQmskcBzQSrY6VLV3gwZh1GCPyMve5wAgU4AV52GjbCtrRjQpGF9ynMNe7KqcAJdHfR3tG0lXW",
+  },
+});
 
 const { Video } = new Mux(
   "983baf3d-90a1-4e70-91c4-3f1bdc59e494",
@@ -58,7 +70,7 @@ router.get("/currentStream/:id", authenticateToken, function (req, res) {
   Events.findOne({ _id: req.params.id, status: true })
     // .populate("userId")
     .then((event) => {
-      console.log('event', event)
+      console.log("event", event);
       if (event) {
         return res.status(200).json({
           success: true,
@@ -283,6 +295,30 @@ router.put("/updateEvent/:id", authenticateToken, async function (req, res) {
         message: "Event Not Found",
       })
     );
+});
+router.put("/endStream/:id", authenticateToken, async function (req, res) {
+  let user = await getDetail(req, res);
+  Events.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      userId: user._id,
+      data: Date.now,
+    },
+    {
+      status: req.body.stream == 1,
+      isStream: req.body.stream !== 1,
+      assetId: req.body.assetId,
+    }
+  )
+    .then((event) => {
+      return res.status(200).json({
+        success: true,
+        data: { status: req.body.stream == 1 },
+
+        message: "Update Successfully",
+      });
+    })
+    .catch((err) => console.log("DONE ERRO", err));
 });
 router.put("/:id", authenticateToken, async function (req, res) {
   let user = await getDetail(req, res);

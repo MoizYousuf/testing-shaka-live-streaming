@@ -17,10 +17,7 @@ const Stripe = require("stripe");
 const Payment = require("../../models/Payments");
 const { default: axios } = require("axios");
 const Event = require("../../models/events");
-const stripe = Stripe(
-  // "sk_test_51IOrKRCPWFz5S2kttcPONcaxqmqlXUzqP1o04NIvVaYXKhLuFqPg3b2plvOtU0hOPO3BbCK4s5T524dOKbXU0Orj00TRPwXEXe"
-  "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"
-);
+const stripe = Stripe(process.env.STRIPE_KEY_TEST);
 
 // Otp
 
