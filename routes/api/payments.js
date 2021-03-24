@@ -20,7 +20,7 @@ const Event = require("../../models/events");
 const stripe = Stripe(process.env.STRIPE_KEY_TEST);
 
 // Otp
-
+ 
 router.post("/", authenticateToken, async function (req, res) {
   let { amount, token, id, acountStripeId } = req.body;
   let user = await getDetail(req, res);
