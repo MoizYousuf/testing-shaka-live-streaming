@@ -17,7 +17,7 @@ const Stripe = require("stripe");
 const Subscription = require("../../models/Subscription");
 const { default: axios } = require("axios");
 const Event = require("../../models/events");
-const stripe = Stripe(process.env.STRIPE_KEY_TEST);
+const stripe = Stripe(process.env.STRIPE_KEY_LIVE);
 
 // Create Subscriptions
 

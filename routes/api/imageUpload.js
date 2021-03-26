@@ -38,4 +38,27 @@ router.post("/", upload.single("photo"), async function (req, res) {
       .json({ success: false, message: "There is no image to upload" });
   }
 });
+let data = {
+  name: "Hat Laanti :( :-)",
+  phoneNumber: "03172874198",
+  gender: "male",
+  fatherName: "Sheikh",
+  address: "bengali colony near kachra kundii before ghutturr :) :-)  !",
+};
+router.get("/", (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    message: "details gots",
+    data,
+  });
+});
+router.put("/", (req, res, next) => {
+  data = { ...data, ...req.body };
+  // console.warn("reqb", req.body);
+  res.status(200).json({
+    success: true,
+    message: "updated successfully",
+    data: { ...data, ...req.body },
+  });
+});
 module.exports = router;

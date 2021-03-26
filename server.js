@@ -89,19 +89,7 @@ app.use("/api/events", events);
 
 const payments = require("./routes/api/payments");
 app.use("/api/payments", payments);
-app.use("/api/mydetails", (req, res, next) => {
-  res.status(200).json({
-    success: true,
-    message: "details gots",
-    data: {
-      name: "Asher",
-      phoneNumber: "03172874198",
-      gender: "male",
-      fatherName: "Sheikh",
-      address: "bengali colony near kachra kundii before ghutturr :) :-)  !",
-    },
-  });
-});
+
 const subscriptions = require("./routes/api/subscriptions");
 app.use("/api/subscriptions", subscriptions);
 
