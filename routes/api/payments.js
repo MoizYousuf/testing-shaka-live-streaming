@@ -17,7 +17,7 @@ const Stripe = require("stripe");
 const Payment = require("../../models/Payments");
 const { default: axios } = require("axios");
 const Event = require("../../models/events");
-const stripe = Stripe(process.env.STRIPE_KEY_TEST);
+const stripe = Stripe(process.env.STRIPE_KEY_LIVE);
 
 // Otp
  
