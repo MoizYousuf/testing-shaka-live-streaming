@@ -17,6 +17,7 @@ require("dotenv").config();
  */
 let watchingsData = [];
 let shakas = [];
+let streamings = [];
 io.on("connection", function (socket) {
   console.log("USer Connectd");
   socket.on("watchings", (msg) => {
@@ -37,9 +38,33 @@ io.on("connection", function (socket) {
     shakas.push(msg);
     io.emit("shakas", shakas);
   });
-
-  socket.on("disconnect", function () {
-    console.log("Got disconnect!");
+  socket.on("livestreaming", (data) => {
+    console.log("livestreaming", data);
+    streamings.push({ ...data, id: socket.id });
+    io.emit("livestreaming", streamings);
+  });
+  socket.on("endstreaming", (data) => {
+    console.log("livestreaming", data);
+    streamings = streamings.filter((val) => val.stream !== data);
+  });
+  socket.on("disconnect", function (err) {
+    streamings.map(async (val, i) => {
+      if (val.id == socket.id) {
+        streamings.splice(i, 1);
+        let isDone = await axios.put(
+          `https://morofy-database.herokuapp.com/api/events/endStream/${val.stream}`,
+          { stream: 0, mux_stream_key: val.mux_stream_key },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${val.token}`,
+            },
+          }
+        );
+      }
+    });
+    console.log("AFTER THIS", streamings);
+    console.log("Got disconnect!", socket.id);
   });
 });
 
@@ -94,6 +119,7 @@ const subscriptions = require("./routes/api/subscriptions");
 app.use("/api/subscriptions", subscriptions);
 
 const image = require("./routes/api/imageUpload");
+const { default: axios } = require("axios");
 app.use("/api/image", image);
 
 // Set up a port

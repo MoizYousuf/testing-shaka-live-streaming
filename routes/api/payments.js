@@ -17,10 +17,14 @@ const Stripe = require("stripe");
 const Payment = require("../../models/Payments");
 const { default: axios } = require("axios");
 const Event = require("../../models/events");
-const stripe = Stripe(process.env.STRIPE_KEY_LIVE);
+const stripe = Stripe(
+  process.env.DEVELOPMENT
+    ? process.env.STRIPE_KEY_TEST
+    : process.env.STRIPE_KEY_LIVE
+);
 
 // Otp
- 
+
 router.post("/", authenticateToken, async function (req, res) {
   let { amount, token, id, acountStripeId } = req.body;
   let user = await getDetail(req, res);
